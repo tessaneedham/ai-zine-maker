@@ -1,0 +1,20 @@
+.azm-block-placeholder {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 20px;
+  background: #f5f3ff;
+  border: 2px dashed #9b8fd4;
+  border-radius: 4px;
+  color: #5b4b8a;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: default;
+}
+
+.azm-block-placeholder .dashicons {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}

@@ -1,0 +1,380 @@
+/* === AZM Frontend Zine Reader === */
+
+@import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Bebas+Neue&family=Caveat:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Courier+Prime:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;700&family=DM+Serif+Display:ital@0;1&family=Josefin+Sans:wght@400;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&family=Nunito:wght@400;700&family=Permanent+Marker&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Raleway:wght@400;700&family=Satisfy&family=Space+Mono:ital,wght@0,400;1,400&family=Work+Sans:wght@400;700&display=swap');
+
+/* === Zine Header (featured image + excerpt) === */
+
+.azm-zine-header {
+	max-width: 540px;
+	margin: 0 auto 2rem;
+}
+
+.azm-zine-thumb img {
+	display: block;
+	width: 100%;
+	height: auto;
+	border-radius: 2px;
+}
+
+.azm-zine-excerpt {
+	margin-top: 1rem;
+	font-size: 15px;
+	line-height: 1.7;
+	color: #444;
+}
+
+.azm-zine-excerpt p { margin: 0; }
+
+.azm-frontend-zine {
+	--zine-max-w: 540px;
+	margin: 2rem auto;
+	font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* === Reader Shell === */
+
+.azm-zine-reader {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 20px;
+}
+
+/* === Pages Carousel === */
+
+.azm-zine-pages {
+	width: 100%;
+	max-width: var(--zine-max-w);
+	position: relative;
+	overflow: hidden;
+}
+
+.azm-zine-page {
+	display: none;
+	width: 100%;
+	aspect-ratio: 1 / 1.414;
+	position: relative;
+	overflow: hidden;
+	box-shadow: 0 8px 40px rgba(0,0,0,.2), 0 2px 8px rgba(0,0,0,.12);
+	animation: azm-page-in .35s ease;
+}
+
+.azm-zine-page.active { display: block; }
+
+.azm-zine-canvas {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 340px;
+	height: calc(340px * 1.414);
+	transform-origin: top left;
+	overflow: hidden;
+}
+
+@keyframes azm-page-in {
+	from { opacity: 0; transform: translateY(6px) scale(.99); }
+	to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* === Page Number === */
+
+.azm-fpage-num {
+	position: absolute;
+	bottom: 10px;
+	right: 14px;
+	font-size: 10px;
+	font-family: 'Courier Prime', monospace;
+	opacity: .3;
+	pointer-events: none;
+}
+
+/* === Cover Layout === */
+
+.azm-fcover {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-end;
+	padding: 0 0 8%;
+	text-align: center;
+}
+
+.azm-fcover-bg {
+	position: absolute; inset: 0;
+	background-size: cover;
+	background-position: center;
+}
+
+.azm-fcover-overlay {
+	position: absolute; inset: 0;
+	background: linear-gradient(to top, rgba(0,0,0,.72) 0%, rgba(0,0,0,.05) 60%, transparent 100%);
+}
+
+.azm-fcover-content {
+	position: relative; z-index: 2;
+	padding: 0 10%;
+}
+
+.azm-fcover .azm-ftitle {
+	font-size: clamp(28px, 6vw, 44px);
+	font-weight: 700;
+	line-height: 1.05;
+	color: #fff;
+	margin: 0 0 .5em;
+}
+
+.azm-fcover .azm-fbody {
+	font-size: clamp(11px, 1.8vw, 14px);
+	font-family: 'Courier Prime', monospace;
+	color: rgba(255,255,255,.75);
+	letter-spacing: .04em;
+	margin: 0;
+}
+
+/* === Text-only Layout === */
+
+.azm-ftext {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	padding: 10% 11%;
+}
+
+.azm-ftext .azm-ftitle {
+	font-size: clamp(20px, 4.5vw, 32px);
+	font-weight: 700;
+	line-height: 1.2;
+	margin: 0 0 .6em;
+}
+
+.azm-ftext .azm-fbody {
+	font-size: clamp(12px, 2.2vw, 16px);
+	line-height: 1.75;
+	opacity: .85;
+	margin: 0;
+}
+
+/* === Image + Text Layout === */
+
+.azm-fimgtext {
+	display: grid;
+	grid-template-rows: 45% 1fr;
+	height: 100%;
+}
+
+.azm-fimgtext-img {
+	background-size: cover;
+	background-position: center;
+	background-color: #ddd;
+}
+
+.azm-fimgtext-text {
+	padding: 6% 8%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.azm-fimgtext .azm-ftitle {
+	font-size: clamp(16px, 3.5vw, 24px);
+	font-weight: 700;
+	line-height: 1.2;
+	margin: 0 0 .5em;
+}
+
+.azm-fimgtext .azm-fbody {
+	font-size: clamp(11px, 2vw, 14px);
+	line-height: 1.7;
+	opacity: .85;
+	margin: 0;
+}
+
+/* === Full Image Layout === */
+
+.azm-fimgfull {
+	width: 100%;
+	height: 100%;
+	background-size: cover;
+	background-position: center;
+	background-color: #ddd;
+	display: flex;
+	align-items: flex-end;
+}
+
+.azm-fimgfull-caption {
+	width: 100%;
+	padding: 8px 14px;
+	background: rgba(0,0,0,.5);
+	font-size: 10px;
+	font-family: 'Courier Prime', monospace;
+	color: rgba(255,255,255,.8);
+	letter-spacing: .07em;
+}
+
+/* === Pull Quote Layout === */
+
+.azm-fpullquote {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	padding: 8% 10%;
+}
+
+.azm-fpullquote-mark {
+	font-size: clamp(60px, 12vw, 100px);
+	line-height: .8;
+	font-family: 'Playfair Display', serif;
+	opacity: .12;
+	margin-bottom: -.05em;
+}
+
+.azm-fpullquote-text {
+	font-size: clamp(18px, 4vw, 30px);
+	font-weight: 400;
+	font-style: italic;
+	line-height: 1.35;
+	max-width: 84%;
+	margin: 0;
+	border: none;
+	padding: 0;
+}
+
+.azm-fpullquote-attr {
+	font-size: clamp(9px, 1.5vw, 11px);
+	font-family: 'Courier Prime', monospace;
+	letter-spacing: .15em;
+	text-transform: uppercase;
+	opacity: .5;
+	margin: 1.2em 0 0;
+}
+
+/* === Grid Layout === */
+
+.azm-fgrid {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	padding: 7% 8%;
+}
+
+.azm-fgrid .azm-ftitle {
+	font-size: clamp(14px, 3vw, 20px);
+	font-weight: 700;
+	margin: 0 0 .6em;
+}
+
+.azm-fgrid-cells {
+	flex: 1;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 6px;
+}
+
+.azm-fgrid-cell {
+	background: rgba(0,0,0,.07);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: clamp(9px, 1.8vw, 13px);
+	text-align: center;
+	padding: 8px;
+	line-height: 1.4;
+	background-size: cover;
+	background-position: center;
+}
+
+/* === Navigation Controls === */
+
+.azm-zine-controls {
+	display: flex;
+	align-items: center;
+	gap: 20px;
+}
+
+.azm-nav-btn {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	border: 1.5px solid #1a1a1a;
+	background: transparent;
+	cursor: pointer;
+	font-size: 18px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all .18s;
+	color: #1a1a1a;
+}
+
+.azm-nav-btn:hover {
+	background: #1a1a1a;
+	color: #fff;
+}
+
+.azm-nav-btn:disabled {
+	opacity: .25;
+	cursor: default;
+}
+
+.azm-page-indicator {
+	font-size: 11px;
+	font-family: 'Courier Prime', monospace;
+	letter-spacing: .1em;
+	opacity: .6;
+	min-width: 50px;
+	text-align: center;
+}
+
+/* === Actions (Download + Fold link) === */
+
+.azm-zine-actions {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+}
+
+.azm-download-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	padding: 10px 20px;
+	background: #1a1a1a;
+	color: #fff;
+	border: none;
+	border-radius: 4px;
+	font-size: 13px;
+	font-family: inherit;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background .18s;
+	text-decoration: none;
+}
+.azm-download-btn:hover { background: #333; color: #fff; }
+
+.azm-fold-link {
+	font-size: 12px;
+	font-family: 'Courier Prime', monospace;
+	letter-spacing: .06em;
+	color: #666;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+	transition: color .15s;
+}
+.azm-fold-link:hover { color: #1a1a1a; }
+
+/* === Responsive === */
+
+@media (max-width: 600px) {
+	.azm-frontend-zine { margin: 1rem 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.azm-zine-page { animation: none; }
+}
