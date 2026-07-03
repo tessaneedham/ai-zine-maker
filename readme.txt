@@ -2,8 +2,8 @@
 Contributors: tessneedham
 Tags: zine, publisher, pdf, layout, canvas
 Requires at least: 6.0
-Tested up to: 6.9
-Stable tag: 1.3.6
+Tested up to: 7.0
+Stable tag: 2.0.0
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,7 +20,6 @@ Features:
 * Image placement with background-size and position controls
 * Shape tools — rectangle and circle with optional stroke
 * Freehand drawing tool
-* AI-assisted copy and image generation (requires OpenAI API key)
 * PDF export — mini-zine (fold-and-cut) or A5 booklet formats
 * Frontend reading experience with page-flip navigation
 
@@ -29,13 +28,8 @@ Features:
 1. Upload the plugin files to `/wp-content/plugins/ai-zine-maker`, or install via the WordPress Plugins screen.
 2. Activate the plugin through the Plugins screen in WordPress.
 3. Go to **Zines → Add New** to create your first zine.
-4. Optionally add your OpenAI API key under **Zines → Settings** for AI generation features.
 
 == Frequently Asked Questions ==
-
-= Do I need an OpenAI API key? =
-
-No. The visual editor and PDF export work without an API key. The key is only required for AI-assisted copy and image generation.
 
 = What PDF formats are supported? =
 
@@ -48,6 +42,11 @@ No. The visual editor and PDF export work without an API key. The key is only re
 Mini-zine format is fixed at 8 pages. A5 booklet format requires a multiple of 4 pages.
 
 == Changelog ==
+
+= 2.0.0 =
+* Removed AI text and image generation features
+* Removed API key settings page
+* Updated plugin description
 
 = 1.3.6 =
 * Improved PDF image quality — images now rendered via native canvas drawImage for lossless output
