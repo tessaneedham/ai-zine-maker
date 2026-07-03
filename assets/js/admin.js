@@ -1232,9 +1232,7 @@
         }).then(r => {
           if (!r.ok) r.json().then(d => console.error('AZM badge save failed:', d));
         });
-        // Also mirror to sidebar meta box radio if present (classic editor)
-        const sidebarRadio = document.querySelector(`input[name="azm_ai_badge"][value="${opt.value}"]`);
-        if (sidebarRadio) sidebarRadio.checked = true;
+
       });
       const text = el('span');
       text.innerHTML = `<strong>${opt.label}</strong><br><span style="font-size:11px;opacity:.7">${opt.desc}</span>`;

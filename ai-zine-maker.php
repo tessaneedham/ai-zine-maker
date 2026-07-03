@@ -351,66 +351,9 @@ function azm_render_frontend( $content ) {
 	return ob_get_clean();
 }
 
-// ---------- AI Disclosure Meta Box ----------
-
-add_action( 'add_meta_boxes', 'azm_add_badge_meta_box' );
-/**
- * Register AI disclosure meta box.
- */
-function azm_add_badge_meta_box() {
-	add_meta_box( 'azm_ai_badge', 'AI Disclosure', 'azm_render_badge_meta_box', array( 'post', 'zine' ), 'side', 'high' );
-}
-
-/**
- * Render the AI disclosure meta box.
- *
- * @param WP_Post $post Current post object.
- */
-function azm_render_badge_meta_box( $post ) {
-	wp_nonce_field( 'azm_badge_save', 'azm_badge_nonce' );
-	$badge = get_post_meta( $post->ID, '_zf_ai_badge', true );
-	?>
-	<p style="margin-bottom:.6rem;font-size:12px;color:#666">Select the level of AI involvement in this zine. This will display a disclosure badge to readers.</p>
-	<fieldset style="border:none;padding:0;margin:0">
-		<label style="display:flex;align-items:flex-start;gap:.4rem;margin-bottom:.6rem">
-			<input type="radio" name="azm_ai_badge" value="assisted" <?php checked( $badge, 'assisted' ); ?> style="margin-top:3px">
-			<span><strong>AI Assisted</strong><br><span style="font-size:11px;color:#666">AI tools helped draft or refine content, but it was directed and heavily edited by a human.</span></span>
-		</label>
-		<label style="display:flex;align-items:flex-start;gap:.4rem">
-			<input type="radio" name="azm_ai_badge" value="generated" <?php checked( $badge, 'generated' ); ?> style="margin-top:3px">
-			<span><strong>AI Generated</strong><br><span style="font-size:11px;color:#666">Content was created entirely by AI with minimal or no human intervention.</span></span>
-		</label>
-	</fieldset>
-	<?php
-}
-
-add_action( 'save_post', 'azm_save_badge_meta', 10, 2 );
-/**
- * Save AI disclosure badge meta on post save.
- *
- * @param int     $post_id Post ID.
- * @param WP_Post $post    Post object (unused but required by hook signature).
- */
-function azm_save_badge_meta( $post_id, $post ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- $post required by save_post hook
-	if ( ! isset( $_POST['azm_badge_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['azm_badge_nonce'] ) ), 'azm_badge_save' ) ) {
-		return;
-	}
-	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-		return;
-	}
-	if ( ! current_user_can( 'edit_post', $post_id ) ) {
-		return;
-	}
-	$allowed = array( '', 'assisted', 'generated' );
-	$value   = isset( $_POST['azm_ai_badge'] ) ? sanitize_text_field( wp_unslash( $_POST['azm_ai_badge'] ) ) : '';
-	if ( in_array( $value, $allowed, true ) ) {
-		if ( '' === $value ) {
-			delete_post_meta( $post_id, '_zf_ai_badge' );
-		} else {
-			update_post_meta( $post_id, '_zf_ai_badge', $value );
-		}
-	}
-}
+// AI Disclosure is handled entirely within the zine editor panel (admin.js).
+// The _zf_ai_badge meta is saved via REST API when the user selects an option.
+// No classic meta box is registered.
 
 // Frontend AI badge is rendered directly in templates/zine-display.php, above the Download PDF button.
 
