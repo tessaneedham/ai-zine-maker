@@ -354,13 +354,23 @@ function azm_add_badge_meta_box() {
  */
 function azm_render_badge_meta_box( $post ) {
 	wp_nonce_field( 'azm_badge_save', 'azm_badge_nonce' );
-	$has_badge = get_post_meta( $post->ID, '_zf_ai_badge', true );
+	$badge = get_post_meta( $post->ID, '_zf_ai_badge', true );
 	?>
-	<p style="margin-bottom:.6rem;font-size:12px;color:#666">Check this if your zine contains any AI-assisted or AI-generated content. This will display a disclosure badge to readers.</p>
-	<label style="display:flex;align-items:center;gap:.4rem;font-weight:600">
-		<input type="checkbox" name="azm_ai_badge" value="1" <?php checked( $has_badge ); ?>>
-		Contains AI-assisted content
-	</label>
+	<p style="margin-bottom:.6rem;font-size:12px;color:#666">Select the level of AI involvement in this zine. This will display a disclosure badge to readers.</p>
+	<fieldset style="border:none;padding:0;margin:0">
+		<label style="display:flex;align-items:flex-start;gap:.4rem;margin-bottom:.6rem">
+			<input type="radio" name="azm_ai_badge" value="" <?php checked( $badge, '' ); ?> style="margin-top:3px">
+			<span><strong>None</strong><br><span style="font-size:11px;color:#666">No AI was used.</span></span>
+		</label>
+		<label style="display:flex;align-items:flex-start;gap:.4rem;margin-bottom:.6rem">
+			<input type="radio" name="azm_ai_badge" value="assisted" <?php checked( $badge, 'assisted' ); ?> style="margin-top:3px">
+			<span><strong>AI Assisted</strong><br><span style="font-size:11px;color:#666">AI tools helped draft or refine content, but it was directed and heavily edited by a human.</span></span>
+		</label>
+		<label style="display:flex;align-items:flex-start;gap:.4rem">
+			<input type="radio" name="azm_ai_badge" value="generated" <?php checked( $badge, 'generated' ); ?> style="margin-top:3px">
+			<span><strong>AI Generated</strong><br><span style="font-size:11px;color:#666">Content was created entirely by AI with minimal or no human intervention.</span></span>
+		</label>
+	</fieldset>
 	<?php
 }
 
@@ -381,10 +391,14 @@ function azm_save_badge_meta( $post_id, $post ) { // phpcs:ignore Generic.CodeAn
 	if ( ! current_user_can( 'edit_post', $post_id ) ) {
 		return;
 	}
-	if ( isset( $_POST['azm_ai_badge'] ) && '1' === $_POST['azm_ai_badge'] ) {
-		update_post_meta( $post_id, '_zf_ai_badge', '1' );
-	} else {
-		delete_post_meta( $post_id, '_zf_ai_badge' );
+	$allowed = array( '', 'assisted', 'generated' );
+	$value   = isset( $_POST['azm_ai_badge'] ) ? sanitize_text_field( wp_unslash( $_POST['azm_ai_badge'] ) ) : '';
+	if ( in_array( $value, $allowed, true ) ) {
+		if ( '' === $value ) {
+			delete_post_meta( $post_id, '_zf_ai_badge' );
+		} else {
+			update_post_meta( $post_id, '_zf_ai_badge', $value );
+		}
 	}
 }
 
@@ -400,10 +414,16 @@ function azm_inject_ai_badge( $content ) {
 	if ( ! is_singular( array( 'post', 'zine' ) ) ) {
 		return $content;
 	}
-	if ( ! get_post_meta( get_the_ID(), '_zf_ai_badge', true ) ) {
+	$badge_value = get_post_meta( get_the_ID(), '_zf_ai_badge', true );
+	if ( ! $badge_value ) {
 		return $content;
 	}
-	$badge = '<div class="zf-ai-badge" style="display:inline-flex;align-items:center;gap:.3em;background:#22BEE8;color:#1F1E1D;font-family:\'Bebas Neue\',sans-serif;font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;padding:.3em .7em;border:2px solid #1F1E1D;margin-bottom:1.5rem">AI-assisted creation</div>';
+	$labels = array(
+		'assisted'  => 'AI Assisted',
+		'generated' => 'AI Generated',
+	);
+	$label = isset( $labels[ $badge_value ] ) ? $labels[ $badge_value ] : 'AI Assisted';
+	$badge = '<div class="zf-ai-badge" style="display:inline-flex;align-items:center;gap:.3em;background:#22BEE8;color:#1F1E1D;font-family:\'Bebas Neue\',sans-serif;font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;padding:.3em .7em;border:2px solid #1F1E1D;margin-bottom:1.5rem">' . esc_html( $label ) . '</div>';
 	return $badge . $content;
 }
 
