@@ -2,7 +2,7 @@
 /**
  * Plugin Name: AI Zine Maker
  * Description: Create and publish digital zines with a drag-and-drop editor. Supports mini-zine and A5 booklet formats.
- * Version: 2.0.0
+ * Version: 2.1.0
  * Author: Tess Needham
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'AZM_VERSION', '2.0.0' );
+define( 'AZM_VERSION', '2.1.0' );
 define( 'AZM_PATH', plugin_dir_path( __FILE__ ) );
 define( 'AZM_URL', plugin_dir_url( __FILE__ ) );
 

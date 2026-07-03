@@ -3,7 +3,7 @@ Contributors: tessneedham
 Tags: zine, publisher, pdf, layout, canvas
 Requires at least: 6.0
 Tested up to: 7.0
-Stable tag: 2.0.0
+Stable tag: 2.1.0
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,6 +42,14 @@ Features:
 Mini-zine format is fixed at 8 pages. A5 booklet format requires a multiple of 4 pages.
 
 == Changelog ==
+
+= 2.1.0 =
+* Added AI Disclosure panel to zine editor (above Export & Share)
+* Added AI Assisted / AI Generated badge options (replaces single checkbox)
+* Badge renders on frontend above the Download PDF button
+* Disclosure saves immediately via REST API on selection
+* Pre-selects correct option when reopening a post
+* Removed None option — disclosure is only shown when AI was used
 
 = 2.0.0 =
 * Removed AI text and image generation features
