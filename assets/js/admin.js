@@ -1209,7 +1209,6 @@
     const disclosureDesc = el('p', { className: 'azm-disclosure-desc', textContent: 'Did you use AI to help create this zine?' });
     disclosureSection.appendChild(disclosureDesc);
     const disclosureOptions = [
-      { value: '',          label: 'None',          desc: 'No AI was used.' },
       { value: 'assisted',  label: 'AI Assisted',   desc: 'Directed and edited by a human, with AI help.' },
       { value: 'generated', label: 'AI Generated',  desc: 'Created entirely by AI.' },
     ];
@@ -1220,13 +1219,18 @@
       radio.checked = currentDisclosure === opt.value;
       radio.addEventListener('change', () => {
         root.dataset.aiDisclosure = opt.value;
-        // Sync to hidden field for WP save
-        let hidden = document.querySelector('input[name="azm_ai_badge"]');
-        if (!hidden) {
-          hidden = el('input', { type: 'hidden', name: 'azm_ai_badge' });
-          document.querySelector('#post')?.appendChild(hidden);
+        // Save directly via REST API (block editor doesn't submit classic meta box fields)
+        const postId = parseInt(root.dataset.postId, 10);
+        const postType = root.dataset.postType || 'zine';
+        const typeMap  = { post: 'posts', page: 'pages', zine: 'zine' };
+        const restBase = typeMap[postType] || postType;
+        if (postId) {
+          fetch(`/wp-json/wp/v2/${restBase}/${postId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': AZM.nonce },
+            body: JSON.stringify({ meta: { _zf_ai_badge: opt.value } }),
+          });
         }
-        if (hidden) hidden.value = opt.value;
       });
       const text = el('span');
       text.innerHTML = `<strong>${opt.label}</strong><br><span style="font-size:11px;opacity:.7">${opt.desc}</span>`;

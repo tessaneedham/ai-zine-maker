@@ -194,19 +194,19 @@ $azm_pages = array_map( 'azm_migrate_page_php', $pages );
 			<button class="azm-nav-btn" id="azm-next" aria-label="Next page">&#8594;</button>
 		</div>
 
-		<?php
-		$azm_badge_val = get_post_meta( $post_id, '_zf_ai_badge', true );
-		if ( $azm_badge_val ) :
-			$azm_badge_labels = array(
-				'assisted'  => 'AI Assisted',
-				'generated' => 'AI Generated',
-			);
-			$azm_badge_label = isset( $azm_badge_labels[ $azm_badge_val ] ) ? $azm_badge_labels[ $azm_badge_val ] : 'AI Assisted';
-			?>
-		<div class="azm-ai-disclosure-badge"><?php echo esc_html( $azm_badge_label ); ?></div>
-		<?php endif; ?>
-
 		<div class="azm-zine-actions">
+			<?php
+			$azm_badge_val = get_post_meta( $post_id, '_zf_ai_badge', true );
+			if ( $azm_badge_val ) :
+				$azm_badge_labels = array( 'assisted' => 'AI Assisted', 'generated' => 'AI Generated' );
+				$azm_badge_label  = isset( $azm_badge_labels[ $azm_badge_val ] ) ? $azm_badge_labels[ $azm_badge_val ] : '';
+				if ( $azm_badge_label ) :
+					?>
+			<div class="azm-ai-disclosure-badge"><?php echo esc_html( $azm_badge_label ); ?></div>
+					<?php
+				endif;
+			endif;
+			?>
 			<button class="azm-download-btn" id="azm-download-pdf">
 				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
 				Download PDF

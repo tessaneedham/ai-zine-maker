@@ -73,6 +73,7 @@ function azm_render_editor_metabox( $post ) {
 		data-pages="<?php echo esc_attr( base64_encode( $pages ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- encoding JSON for HTML data attribute, not obfuscation ?>"
 		data-format="<?php echo esc_attr( $format ); ?>"
 		data-post-id="<?php echo esc_attr( $post->ID ); ?>"
+		data-post-type="<?php echo esc_attr( $post->post_type ); ?>"
 		data-ai-disclosure="<?php echo esc_attr( $azm_ai_badge ); ?>"></div>
 	<?php
 }
@@ -107,6 +108,17 @@ function azm_register_meta() {
 				'single'        => true,
 				'type'          => 'string',
 				'default'       => 'mini-zine',
+				'auth_callback' => $auth,
+			)
+		);
+		register_post_meta(
+			$pt,
+			'_zf_ai_badge',
+			array(
+				'show_in_rest'  => true,
+				'single'        => true,
+				'type'          => 'string',
+				'default'       => '',
 				'auth_callback' => $auth,
 			)
 		);
@@ -360,10 +372,6 @@ function azm_render_badge_meta_box( $post ) {
 	?>
 	<p style="margin-bottom:.6rem;font-size:12px;color:#666">Select the level of AI involvement in this zine. This will display a disclosure badge to readers.</p>
 	<fieldset style="border:none;padding:0;margin:0">
-		<label style="display:flex;align-items:flex-start;gap:.4rem;margin-bottom:.6rem">
-			<input type="radio" name="azm_ai_badge" value="" <?php checked( $badge, '' ); ?> style="margin-top:3px">
-			<span><strong>None</strong><br><span style="font-size:11px;color:#666">No AI was used.</span></span>
-		</label>
 		<label style="display:flex;align-items:flex-start;gap:.4rem;margin-bottom:.6rem">
 			<input type="radio" name="azm_ai_badge" value="assisted" <?php checked( $badge, 'assisted' ); ?> style="margin-top:3px">
 			<span><strong>AI Assisted</strong><br><span style="font-size:11px;color:#666">AI tools helped draft or refine content, but it was directed and heavily edited by a human.</span></span>
