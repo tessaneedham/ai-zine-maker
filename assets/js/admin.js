@@ -16,6 +16,11 @@
   // ===== Constants =====
 
   const MINI_LABELS = ['Front Cover', 'Inside Front', 'Page 3', 'Page 4', 'Page 5', 'Page 6', 'Inside Back', 'Back Cover'];
+
+  // Spreads: covers are always 1-up
+  function isCoverPage(idx) {
+    return idx === 0 || idx === pages.length - 1;
+  }
   const FONTS = [
     ["'Abril Fatface', Georgia, serif",             'Abril Fatface'],
     ["'Bebas Neue', Arial, sans-serif",             'Bebas Neue'],
@@ -293,6 +298,22 @@
       thumb.appendChild(el('div', { className: 'azm-page-thumb-num', textContent: i + 1 }));
       thumb.appendChild(inner);
 
+      // Spread toggle (not available on covers)
+      if (!isCoverPage(i)) {
+        const spreadBtn = el('button', {
+          type: 'button',
+          className: 'azm-spread-btn' + (p.spread2up ? ' active' : ''),
+          textContent: p.spread2up ? '2-up' : '1-up',
+          title: p.spread2up ? 'Switch to 1-up (single page)' : 'Switch to 2-up (spread)',
+        });
+        spreadBtn.addEventListener('click', ev => {
+          ev.stopPropagation();
+          pages[i].spread2up = !pages[i].spread2up;
+          syncHidden(); render();
+        });
+        thumb.appendChild(spreadBtn);
+      }
+
       if (format !== 'mini-zine' && pages.length > 1) {
         const del = el('button', { className: 'azm-page-thumb-delete', textContent: '×' });
         del.addEventListener('click', ev => { ev.stopPropagation(); deletePage(i); });
@@ -362,8 +383,9 @@
     area.appendChild(renderTextToolbar(selEl && selEl.type === 'text' ? selEl : null));
 
     // Canvas
-    const wrapper = el('div', { className: 'azm-canvas-wrapper' });
-    const canvas  = el('div', { className: 'azm-canvas' + (drawMode ? ' azm-draw-mode' : '') });
+    const is2up   = !isCoverPage(activeIdx) && !!page.spread2up;
+    const wrapper = el('div', { className: 'azm-canvas-wrapper' + (is2up ? ' azm-spread' : '') });
+    const canvas  = el('div', { className: 'azm-canvas' + (drawMode ? ' azm-draw-mode' : '') + (is2up ? ' azm-canvas--spread' : '') });
     canvas.style.background = page.bgColor;
     canvas.addEventListener('mousedown', ev => {
       if (drawMode) {
@@ -1029,16 +1051,6 @@
 
   // ===== Props Panel =====
 
-  function connectKeyBtn() {
-    const btn = el('a', {
-      className: 'azm-connect-key-btn',
-      textContent: 'Connect an API key',
-      href: AZM.settingsUrl,
-      target: '_blank',
-    });
-    return btn;
-  }
-
   function renderPropsPanel() {
     const panel = el('div', { className: 'azm-props-panel' });
     const page  = pages[activeIdx];
@@ -1191,71 +1203,6 @@
     }
     panel.appendChild(drawSection);
 
-    // AI TEXT
-    const aiSection = el('div', { className: 'azm-props-section' });
-    aiSection.appendChild(el('div', { className: 'azm-props-section-title', textContent: 'AI TEXT' }));
-    if (AZM.hasAnthropicKey || AZM.hasOpenAIKey) {
-      const aiWrap = el('div', { className: 'azm-ai-section' });
-      let textProvider = AZM.hasAnthropicKey ? 'anthropic' : 'openai';
-
-      if (AZM.hasAnthropicKey && AZM.hasOpenAIKey) {
-        const toggle = el('div', { className: 'azm-provider-toggle' });
-        [['anthropic', 'Claude'], ['openai', 'GPT']].forEach(([val, label]) => {
-          const btn = el('button', {
-            className: 'azm-provider-btn' + (textProvider === val ? ' active' : ''),
-            textContent: label,
-          });
-          btn.addEventListener('click', () => {
-            textProvider = val;
-            toggle.querySelectorAll('.azm-provider-btn').forEach(b => b.classList.toggle('active', b === btn));
-          });
-          toggle.appendChild(btn);
-        });
-        aiWrap.appendChild(toggle);
-      }
-
-      const promptInp = el('textarea', { className: 'azm-ai-prompt', placeholder: 'Describe your topic, mood, or ideas...' });
-      const statusEl  = el('div', { className: 'azm-ai-status' });
-      const genBtn    = el('button', { className: 'azm-ai-btn full-width', textContent: 'Generate text' });
-      genBtn.addEventListener('click', () => generateCopy(promptInp.value, genBtn, statusEl, textProvider));
-      aiWrap.appendChild(promptInp); aiWrap.appendChild(genBtn); aiWrap.appendChild(statusEl);
-      aiSection.appendChild(aiWrap);
-    } else {
-      aiSection.appendChild(connectKeyBtn());
-    }
-    panel.appendChild(aiSection);
-
-    // AI Image
-    const imgAiSection = el('div', { className: 'azm-props-section' });
-    imgAiSection.appendChild(el('div', { className: 'azm-props-section-title', textContent: 'AI IMAGE' }));
-    if (AZM.hasOpenAIKey) {
-      const imgWrap   = el('div', { className: 'azm-ai-section' });
-      const imgPrompt = el('textarea', { className: 'azm-ai-prompt', placeholder: 'Describe an image...' });
-
-      if (imageHistory.length > 0) {
-        const strip = el('div', { className: 'azm-img-history' });
-        imageHistory.slice(-4).reverse().forEach(item => {
-          const thumb = el('div', { className: 'azm-img-history-thumb', title: item.prompt });
-          thumb.style.backgroundImage = `url(${item.url})`;
-          thumb.addEventListener('click', () => { imgPrompt.value = item.prompt; });
-          strip.appendChild(thumb);
-        });
-        imgWrap.appendChild(strip);
-      }
-
-      const imgStatus = el('div', { className: 'azm-ai-status' });
-      const imgBtn    = el('button', { className: 'azm-ai-btn full-width', textContent: 'Generate Image' });
-      imgBtn.addEventListener('click', () => {
-        const prev = imageHistory.length > 0 ? imageHistory[imageHistory.length - 1].prompt : null;
-        generateImage(imgPrompt.value, imgBtn, imgStatus, prev);
-      });
-      imgWrap.appendChild(imgPrompt); imgWrap.appendChild(imgBtn); imgWrap.appendChild(imgStatus);
-      imgAiSection.appendChild(imgWrap);
-    } else {
-      imgAiSection.appendChild(connectKeyBtn());
-    }
-    panel.appendChild(imgAiSection);
-
     // Export
     const exportSection = el('div', { className: 'azm-props-section' });
     exportSection.appendChild(el('div', { className: 'azm-props-section-title', textContent: 'Export & Share' }));
@@ -1269,65 +1216,6 @@
     panel.appendChild(exportSection);
 
     return panel;
-  }
-
-  // ===== AI =====
-
-  async function generateCopy(prompt, btn, statusEl, provider) {
-    provider = provider || 'anthropic';
-    if (!prompt.trim()) { statusEl.textContent = 'Enter a topic first.'; return; }
-    btn.disabled = true;
-    statusEl.innerHTML = '<span class="azm-spinner"></span>Generating...';
-    try {
-      const existingTarget = lastFocusedTextElId && pages[activeIdx].elements.find(e => e.id === lastFocusedTextElId && e.type === 'text');
-      const context = pages.map(p =>
-        (p.elements || []).filter(e => e.type === 'text').map(e => e.content).join(' ')
-      ).join(' | ');
-      const type = existingTarget && existingTarget.fontSize >= 20 ? 'title' : existingTarget && existingTarget.italic ? 'quote' : 'body';
-      const res  = await fetch(AZM.restUrl + 'generate-copy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': AZM.nonce },
-        body: JSON.stringify({ prompt, context, type, provider }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Error');
-      if (existingTarget) {
-        updateEl(existingTarget.id, { content: data.text });
-      } else {
-        const newEl = newTextEl(data.text, 8, 8, 84, 30, { fontSize: 14 });
-        pages[activeIdx].elements.push(newEl);
-        selectedElId = newEl.id;
-        lastFocusedTextElId = newEl.id;
-        syncHidden();
-        render();
-      }
-      statusEl.textContent = 'Done!';
-    } catch (err) {
-      statusEl.textContent = 'Error: ' + err.message;
-    } finally { btn.disabled = false; }
-  }
-
-  async function generateImage(prompt, btn, statusEl, previousPrompt) {
-    if (!prompt.trim()) { statusEl.textContent = 'Enter a description first.'; return; }
-    btn.disabled = true;
-    statusEl.innerHTML = '<span class="azm-spinner"></span>Generating... (15–30s)';
-    try {
-      const res  = await fetch(AZM.restUrl + 'generate-image', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': AZM.nonce },
-        body: JSON.stringify({ prompt, previousPrompt: previousPrompt || null, postId: parseInt(root.dataset.postId, 10) || 0 }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Error');
-      imageHistory.push({ prompt, url: data.url });
-      const elem = newImageEl(data.url, 8, 8, 84, 60);
-      pages[activeIdx].elements.push(elem);
-      selectedElId = elem.id;
-      statusEl.textContent = 'Image generated!';
-      syncHidden(); render();
-    } catch (err) {
-      statusEl.textContent = 'Error: ' + err.message;
-    } finally { btn.disabled = false; }
   }
 
   // ===== PDF Download =====
