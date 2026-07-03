@@ -68,10 +68,12 @@ function azm_render_editor_metabox( $post ) {
 	$azm_fraw = get_post_meta( $post->ID, '_azm_format', true );
 	$format   = $azm_fraw ? $azm_fraw : 'mini-zine';
 	?>
+	<?php $azm_ai_badge = get_post_meta( $post->ID, '_zf_ai_badge', true ); ?>
 	<div id="azm-root"
 		data-pages="<?php echo esc_attr( base64_encode( $pages ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- encoding JSON for HTML data attribute, not obfuscation ?>"
 		data-format="<?php echo esc_attr( $format ); ?>"
-		data-post-id="<?php echo esc_attr( $post->ID ); ?>"></div>
+		data-post-id="<?php echo esc_attr( $post->ID ); ?>"
+		data-ai-disclosure="<?php echo esc_attr( $azm_ai_badge ); ?>"></div>
 	<?php
 }
 
@@ -402,30 +404,7 @@ function azm_save_badge_meta( $post_id, $post ) { // phpcs:ignore Generic.CodeAn
 	}
 }
 
-// Frontend AI badge display.
-add_filter( 'the_content', 'azm_inject_ai_badge', 5 );
-/**
- * Inject AI badge before zine/post content.
- *
- * @param string $content Post content.
- * @return string Modified content.
- */
-function azm_inject_ai_badge( $content ) {
-	if ( ! is_singular( array( 'post', 'zine' ) ) ) {
-		return $content;
-	}
-	$badge_value = get_post_meta( get_the_ID(), '_zf_ai_badge', true );
-	if ( ! $badge_value ) {
-		return $content;
-	}
-	$labels = array(
-		'assisted'  => 'AI Assisted',
-		'generated' => 'AI Generated',
-	);
-	$label = isset( $labels[ $badge_value ] ) ? $labels[ $badge_value ] : 'AI Assisted';
-	$badge = '<div class="zf-ai-badge" style="display:inline-flex;align-items:center;gap:.3em;background:#22BEE8;color:#1F1E1D;font-family:\'Bebas Neue\',sans-serif;font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;padding:.3em .7em;border:2px solid #1F1E1D;margin-bottom:1.5rem">' . esc_html( $label ) . '</div>';
-	return $badge . $content;
-}
+// Frontend AI badge is rendered directly in templates/zine-display.php, above the Download PDF button.
 
 // ---------- Flush Rewrite on Activation ----------
 

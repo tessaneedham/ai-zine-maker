@@ -369,6 +369,24 @@
 }
 .azm-fold-link:hover { color: #1a1a1a; }
 
+/* === AI Disclosure Badge === */
+.azm-ai-disclosure-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: .3em;
+	background: #22BEE8;
+	color: #1F1E1D;
+	font-family: 'Bebas Neue', sans-serif;
+	font-size: .85rem;
+	text-transform: uppercase;
+	letter-spacing: .12em;
+	padding: .3em .8em;
+	border: 2px solid #1F1E1D;
+	margin-bottom: .75rem;
+	display: block;
+	width: fit-content;
+}
+
 /* === Responsive === */
 
 @media (max-width: 600px) {

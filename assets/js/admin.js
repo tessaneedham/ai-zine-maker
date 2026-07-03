@@ -1203,6 +1203,39 @@
     }
     panel.appendChild(drawSection);
 
+    // AI Disclosure
+    const disclosureSection = el('div', { className: 'azm-props-section' });
+    disclosureSection.appendChild(el('div', { className: 'azm-props-section-title', textContent: 'AI Disclosure' }));
+    const disclosureDesc = el('p', { className: 'azm-disclosure-desc', textContent: 'Did you use AI to help create this zine?' });
+    disclosureSection.appendChild(disclosureDesc);
+    const disclosureOptions = [
+      { value: '',          label: 'None',          desc: 'No AI was used.' },
+      { value: 'assisted',  label: 'AI Assisted',   desc: 'Directed and edited by a human, with AI help.' },
+      { value: 'generated', label: 'AI Generated',  desc: 'Created entirely by AI.' },
+    ];
+    const currentDisclosure = root.dataset.aiDisclosure || '';
+    disclosureOptions.forEach(opt => {
+      const lbl = el('label', { className: 'azm-disclosure-option' });
+      const radio = el('input', { type: 'radio', name: 'azm_disclosure', value: opt.value });
+      radio.checked = currentDisclosure === opt.value;
+      radio.addEventListener('change', () => {
+        root.dataset.aiDisclosure = opt.value;
+        // Sync to hidden field for WP save
+        let hidden = document.querySelector('input[name="azm_ai_badge"]');
+        if (!hidden) {
+          hidden = el('input', { type: 'hidden', name: 'azm_ai_badge' });
+          document.querySelector('#post')?.appendChild(hidden);
+        }
+        if (hidden) hidden.value = opt.value;
+      });
+      const text = el('span');
+      text.innerHTML = `<strong>${opt.label}</strong><br><span style="font-size:11px;opacity:.7">${opt.desc}</span>`;
+      lbl.appendChild(radio);
+      lbl.appendChild(text);
+      disclosureSection.appendChild(lbl);
+    });
+    panel.appendChild(disclosureSection);
+
     // Export
     const exportSection = el('div', { className: 'azm-props-section' });
     exportSection.appendChild(el('div', { className: 'azm-props-section-title', textContent: 'Export & Share' }));

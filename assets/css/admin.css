@@ -1,5 +1,26 @@
 /* === AZM Admin Editor v4 === */
 
+/* Spread toggle button */
+.azm-spread-btn {
+	position: absolute;
+	bottom: 4px;
+	left: 4px;
+	font-size: 9px;
+	padding: 1px 5px;
+	background: #fff;
+	border: 1px solid #aaa;
+	border-radius: 2px;
+	cursor: pointer;
+	z-index: 2;
+	line-height: 1.5;
+}
+.azm-spread-btn.active {
+	background: #22BEE8;
+	border-color: #22BEE8;
+	color: #1F1E1D;
+	font-weight: bold;
+}
+
 :root {
 	--azm-accent:      var(--wp-admin-theme-color, #2271b1);
 	--azm-accent-dark: var(--wp-admin-theme-color-darker-10, #135e96);
@@ -376,6 +397,7 @@
 
 /* Canvas wrapper */
 .azm-canvas-wrapper { width: 100%; max-width: 340px; }
+.azm-canvas-wrapper.azm-spread { max-width: 680px; }
 
 .azm-canvas {
 	width: 100%;
@@ -385,6 +407,22 @@
 	position: relative;
 	overflow: hidden;
 	cursor: default;
+}
+
+.azm-canvas.azm-canvas--spread {
+	aspect-ratio: 2 / 1.414;
+}
+
+.azm-canvas.azm-canvas--spread::after {
+	content: '';
+	position: absolute;
+	left: 50%;
+	top: 0;
+	bottom: 0;
+	width: 0;
+	border-left: 2px dashed rgba(0, 0, 0, 0.25);
+	pointer-events: none;
+	z-index: 9999;
 }
 
 /* === Canvas Elements === */
@@ -680,6 +718,24 @@
 	text-align: center;
 	min-height: 14px;
 }
+
+/* AI Disclosure */
+.azm-disclosure-desc {
+	font-size: 11px;
+	opacity: .7;
+	margin: 0 0 8px;
+	line-height: 1.4;
+}
+.azm-disclosure-option {
+	display: flex;
+	align-items: flex-start;
+	gap: 7px;
+	margin-bottom: 8px;
+	cursor: pointer;
+	font-size: 12px;
+	line-height: 1.4;
+}
+.azm-disclosure-option input { margin-top: 3px; flex-shrink: 0; }
 
 /* Export */
 .azm-export-btn {
