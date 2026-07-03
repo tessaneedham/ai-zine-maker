@@ -337,53 +337,36 @@ function azm_render_frontend( $content ) {
 	return ob_get_clean();
 }
 
-// ---------- AI Badge Meta Box ----------
+// ---------- AI Disclosure Meta Box ----------
 
 add_action( 'add_meta_boxes', 'azm_add_badge_meta_box' );
 /**
- * Register AI badge meta box.
+ * Register AI disclosure meta box.
  */
 function azm_add_badge_meta_box() {
-	add_meta_box( 'azm_ai_badge', 'AI Content', 'azm_render_badge_meta_box', array( 'post', 'zine' ), 'side', 'high' );
+	add_meta_box( 'azm_ai_badge', 'AI Disclosure', 'azm_render_badge_meta_box', array( 'post', 'zine' ), 'side', 'high' );
 }
 
 /**
- * Render the AI badge meta box.
+ * Render the AI disclosure meta box.
  *
  * @param WP_Post $post Current post object.
  */
 function azm_render_badge_meta_box( $post ) {
 	wp_nonce_field( 'azm_badge_save', 'azm_badge_nonce' );
 	$has_badge = get_post_meta( $post->ID, '_zf_ai_badge', true );
-	$locked_ai = get_post_meta( $post->ID, '_azm_ai_used', true );
 	?>
-	<p style="margin-bottom:.5rem;font-size:12px;color:#666">
-		Check this box if your zine contains any AI-generated text or images.
-	</p>
+	<p style="margin-bottom:.6rem;font-size:12px;color:#666">Check this if your zine contains any AI-assisted or AI-generated content. This will display a disclosure badge to readers.</p>
 	<label style="display:flex;align-items:center;gap:.4rem;font-weight:600">
-		<input type="checkbox" name="azm_ai_badge" value="1"
-			<?php checked( $has_badge || $locked_ai ); ?>
-			<?php
-			if ( $locked_ai ) {
-				echo 'disabled title="AI tools were used — this cannot be unchecked."';}
-			?>
-		>
-		This zine contains AI-generated content
+		<input type="checkbox" name="azm_ai_badge" value="1" <?php checked( $has_badge ); ?>>
+		Contains AI-assisted content
 	</label>
-	<?php if ( $locked_ai ) : ?>
-		<input type="hidden" name="azm_ai_badge" value="1">
-		<p style="margin-top:.5rem;font-size:11px;color:#c00">AI tools were used in this zine. This badge cannot be removed.</p>
-	<?php endif; ?>
-	<p style="margin-top:.75rem;font-size:11px;color:#666">
-		If AI content was used and this box is unchecked, publishing will be blocked.
-		<a href="/contact/" target="_blank">Contact admin</a> if you believe this is an error.
-	</p>
 	<?php
 }
 
 add_action( 'save_post', 'azm_save_badge_meta', 10, 2 );
 /**
- * Save AI badge meta on post save.
+ * Save AI disclosure badge meta on post save.
  *
  * @param int     $post_id Post ID.
  * @param WP_Post $post    Post object (unused but required by hook signature).
@@ -398,66 +381,12 @@ function azm_save_badge_meta( $post_id, $post ) { // phpcs:ignore Generic.CodeAn
 	if ( ! current_user_can( 'edit_post', $post_id ) ) {
 		return;
 	}
-
 	if ( isset( $_POST['azm_ai_badge'] ) && '1' === $_POST['azm_ai_badge'] ) {
 		update_post_meta( $post_id, '_zf_ai_badge', '1' );
-	} elseif ( ! get_post_meta( $post_id, '_azm_ai_used', true ) ) {
-		// Only allow removing if AI tools were NOT used.
+	} else {
 		delete_post_meta( $post_id, '_zf_ai_badge' );
 	}
 }
-
-
-// Block publish if AI content detected but badge missing.
-add_action( 'wp_insert_post_data', 'azm_enforce_ai_badge', 10, 2 );
-/**
- * Enforce AI badge requirement before publishing.
- *
- * @param array $data    Sanitized post data.
- * @param array $postarr Raw post array.
- * @return array Modified post data.
- */
-function azm_enforce_ai_badge( $data, $postarr ) {
-	if ( 'publish' !== $data['post_status'] ) {
-		return $data;
-	}
-	if ( ! in_array( $data['post_type'], array( 'post', 'zine' ), true ) ) {
-		return $data;
-	}
-	if ( ! isset( $postarr['ID'] ) || ! $postarr['ID'] ) {
-		return $data;
-	}
-	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-		return $data;
-	}
-
-	$post_id    = (int) $postarr['ID'];
-	$ai_used    = get_post_meta( $post_id, '_azm_ai_used', true );
-	$has_badge  = isset( $postarr['azm_ai_badge'] ) && '1' === $postarr['azm_ai_badge'];
-	$badge_meta = get_post_meta( $post_id, '_zf_ai_badge', true );
-
-	if ( $ai_used && ! $has_badge && ! $badge_meta ) {
-		// Revert to draft — block publish.
-		$data['post_status'] = 'draft';
-		add_filter(
-			'redirect_post_location',
-			function ( $loc ) {
-				return add_query_arg( 'azm_badge_error', '1', $loc );
-			}
-		);
-	}
-	return $data;
-}
-
-// Show publish-blocked admin notice.
-add_action(
-	'admin_notices',
-	function () {
-		if ( isset( $_GET['azm_badge_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display-only flag set by redirect_post_location filter, no data processed
-			echo '<div class="notice notice-error"><p><strong>Publish blocked:</strong> AI content was detected in this zine. Please check the &quot;This zine contains AI-generated content&quot; checkbox before publishing. <a href="/contact/">Contact admin</a> if you believe this is incorrect.</p></div>';
-		}
-	}
-);
 
 // Frontend AI badge display.
 add_filter( 'the_content', 'azm_inject_ai_badge', 5 );
